@@ -7,7 +7,7 @@
 > btw, I use arch. More specifically, EndeavourOS KDE.
 
 
-## ✨使用方法与效果
+## ✨使用效果
 
 由于本人只使用EndeavourOS ArchLinux KDE Wayland，目前仅能给出在如上环境的使用方法与效果. 如果你使用的是其他环境，欢迎向本项目贡献代码，或者提出建议！
 
@@ -16,9 +16,57 @@
 ![Inst3](./resource/instruction-3.png "instruction-3")
 
 
-## ⚒️编译与安装
+## ⚒️编译、安装和使用
 
 由于本人只使用EndeavourOS ArchLinux KDE Wayland，目前仅能给出在如上环境的编译与安装方法. 如果你使用的是其他环境，欢迎向本项目贡献代码，或者提出建议！
+
+### 手动测试/安装
+
+1. 安装AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin):
+
+```bash
+# Use whatever AUR helper you like, or even build locally
+yay -S wemeet-bin  
+```
+
+2. 安装`pipewire-media-session`和其他依赖
+
+```bash
+sudo pacman -S pipewire-media-session
+sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde
+```
+
+- 注意：如果你已经安装了`wireplumber`，pacman会提示你卸载`wireplumber`. 本项目当前必须需要`pipewire-media-session`才可正常运作. 一般情况下，你可以无痛地按下`y`将`wireplumber`替换为`pipewire-media-session`. 关于此问题具体的implication，还请自行查阅相关资料.
+
+3. 编译本项目:
+
+```bash
+# 1. clone this repo
+git clone --recursive git@github.com:xuwd1/wemeet-wayland-screencast.git
+cd wemeet-wayland-screencast
+
+# 2. build the project
+mkdir build
+cd build
+cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
+ninja
+
+```
+
+- 编译完成后，`build`目录下可见有`libhook.so`
+
+4. 将`libhook.so`预加载并钩住`wemeet`:
+
+```bash
+# make sure you are in the build directory
+LD_PRELOAD=$(readlink -f ./libhook.so) wemeet
+```
+
+随后按照上面的使用方法，你应该可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能了！
+- 注意：请不要使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
+
+
+### 使用AUR包 `wemeet-wayland-screencast-git`
 
 TODO: AUR package coming VERY SOON!
 
