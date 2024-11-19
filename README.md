@@ -62,6 +62,14 @@ ninja
 LD_PRELOAD=$(readlink -f ./libhook.so) wemeet
 ```
 
+5. (optional) 将`libhook.so`安装到系统目录
+
+```bash
+sudo ninja install
+```
+默认情况下，`libhook.so`会被安装到`/usr/lib/wemeet`下. 你随后可以相应地自行编写一个启动脚本，或者修改`wemeet-bin`的启动脚本，使得`libhook.so`按如上方式被预加载并钩住`wemeetapp`.
+
+
 随后按照上面的使用方法，你应该可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能了！
 - 注意：请不要使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
 
