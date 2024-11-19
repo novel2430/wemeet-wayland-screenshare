@@ -43,7 +43,7 @@ wemeetapp called XShmGetImage(0x78b3c8003800, 1089, 0x78b3c80136d0, 295, 2016, 1
 image->width: 2880
 image->height: 1800
 image->xoffset: 0
-image->format: 2
+image->format: 2 # indicates ZPixmap
 image->data: 0x78b3a8438000
 image->byte_order: 0
 image->bitmap_unit: 32
@@ -51,7 +51,7 @@ image->bitmap_bit_order: 0
 image->bitmap_pad: 32
 image->depth: 24
 image->bytes_per_line: 11520
-image->bits_per_pixel: 32
+image->bits_per_pixel: 32 # 4 bytes per pixel, ZPixmap, thus RGBA or BGRA
 wemeetapp called XShmGetImage(0x78b3c8003800, 1089, 0x78b3c80136d0, 295, 2016, 18446744073709551615)
 wemeetapp called XShmGetImage(0x78b3c8003800, 1089, 0x78b3c80136d0, 295, 2016, 18446744073709551615)
 wemeetapp called XShmGetImage(0x78b3c8003800, 1089, 0x78b3c80136d0, 295, 2016, 18446744073709551615)
