@@ -1,6 +1,6 @@
 
 
-# wemeet-wayland-screencast -- 实现KDE Wayland下腾讯会议屏幕共享
+# wemeet-wayland-screenshare -- 实现KDE Wayland下腾讯会议屏幕共享
 
 长期以来，由于腾讯会议开发者的不作为，腾讯会议一直无法实现在Wayland下的屏幕共享，给Linux用户造成了极大的不便。但现在，很自豪地，本项目首次实现了在KDE Wayland下使用腾讯会议的屏幕共享功能！
 
@@ -42,8 +42,8 @@ sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde
 
 ```bash
 # 1. clone this repo
-git clone --recursive git@github.com:xuwd1/wemeet-wayland-screencast.git
-cd wemeet-wayland-screencast
+git clone --recursive https://github.com/xuwd1/wemeet-wayland-screenshare.git
+cd wemeet-wayland-screenshare
 
 # 2. build the project
 mkdir build
@@ -62,6 +62,10 @@ ninja
 LD_PRELOAD=$(readlink -f ./libhook.so) wemeet
 ```
 
+按照上面的使用方法，你应该可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能了！
+- 注意：请不要使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
+
+
 5. (optional) 将`libhook.so`安装到系统目录
 
 ```bash
@@ -70,13 +74,18 @@ sudo ninja install
 默认情况下，`libhook.so`会被安装到`/usr/lib/wemeet`下. 你随后可以相应地自行编写一个启动脚本，或者修改`wemeet-bin`的启动脚本，使得`libhook.so`按如上方式被预加载并钩住`wemeetapp`.
 
 
-随后按照上面的使用方法，你应该可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能了！
-- 注意：请不要使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
 
+### 使用AUR包 `wemeet-wayland-screenshare-git`
 
-### 使用AUR包 `wemeet-wayland-screencast-git`
+更方便的安装方法是直接安装AUR包`wemeet-wayland-screenshare-git`:
 
-TODO: AUR package coming VERY SOON!
+```bash
+# Use whatever AUR helper you like, or even build locally
+yay -S wemeet-wayland-screenshare-git
+
+```
+
+随后，在命令行执行`wemeet-wayland-screenshare`，或者直接在应用菜单中搜索`WemeetApp(KDE Wayland Screenshare)`，打开即可.
 
 ## 🔬原理概述
 
