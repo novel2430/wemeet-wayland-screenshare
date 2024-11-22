@@ -33,7 +33,7 @@ yay -S wemeet-bin
 
 ```bash
 sudo pacman -S pipewire-media-session
-sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde
+sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde xwaylandvideobridge xdotool
 ```
 
 - 注意：如果你已经安装了`wireplumber`，pacman会提示你卸载`wireplumber`. 本项目当前必须需要`pipewire-media-session`才可正常运作. 一般情况下，你可以无痛地按下`y`将`wireplumber`替换为`pipewire-media-session`. 关于此问题具体的implication，还请自行查阅相关资料.
