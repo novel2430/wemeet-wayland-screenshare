@@ -59,11 +59,11 @@ ninja
 
 ```bash
 # make sure you are in the build directory
-LD_PRELOAD=$(readlink -f ./libhook.so) wemeet
+LD_PRELOAD=$(readlink -f ./libhook.so) wemeet-x11
 ```
 
 按照上面的使用方法，你应该可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能了！
-- 注意：请不要使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
+- 注意：推荐使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
 
 
 5. (optional) 将`libhook.so`安装到系统目录
@@ -95,7 +95,7 @@ yay -S wemeet-wayland-screenshare-git
 
 事实上，本项目实际上开发的是一个X11的hack，而不是wemeetapp的hack. 其钩住X11的`XShmAttach`,`XShmGetImage`和`XShmDetach`函数，分别实现：
 
-- 在`XShmAttach`被调用时，hook会启动payload thread，启动xdg portal session，并进一步启动gio thread和pipewire thread，开始屏幕录制，并将frame不断写入framebuffer
+- 在`XShmAttach`被调用时，hook会启动payload thread，启动xdg portal session，并进一步启动gio thread和pipewire thread，开始屏幕录制，并将frame不断写入framebuffer. 此外，一个x11 overlay sanitizer会被启动，使得X11模式下（`wemeet-x11`），开启屏幕共享时wemeet的overlay被强制最小化，进而让用户的鼠标可以自由地点击包括xdg portal窗口在内的任何屏幕内容.
 
 - 在`XShmGetImage`被调用时，hook会从framebuffer中读取图像，并将其写入`XImage`结构体中，让wemeetapp获取到正确的屏幕图像
 
@@ -133,9 +133,10 @@ yay -S wemeet-wayland-screenshare-git
 1. 本项目目前只在**EndeavourOS ArchLinux KDE Wayland**环境下在多个机器测试过. 其余环境下能否使用未知（GNOME目前尚未测试，但认为几乎没有希望），并且：
    - 已知该项目**必须需要`pipewire-media-session`才可正常运作**. 使用`wireplumber`替换`pipewire-media-session`一定会使得pipewire的录屏stream无法运行(对应`payload.hpp`中的`PipewireScreenCast`). 目前本人没有找到解决方案，如果你知道该如何解决，请不吝赐教！
 
-2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 而`wemeet-bin`中提供的两个运行模式的`wemeetapp`搭配本项目，均存在各自的问题：
-   - 在Wayland模式下（使用`wemeet`启动），`wemeetapp`无法使用摄像头，将鼠标移动到“说点什么”的文本框会导致`wemeetapp`崩溃，且`wemeetapp`窗口无法被移动，只能被最小化/最大化/关闭.
-   - 在X11模式下（使用`wemeet-x11`启动），启动屏幕共享时，鼠标无法点击到xdg portal窗口，导致无法继续操作
+2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 特别地，在纯Wayland模式下（使用`wemeet`启动），wemeet本身存在一个恶性bug：尽管搭配本项目时，Linux用户可以将屏幕共享给其他用户，但当其他用户发起屏幕共享时，wemeet则会直接崩溃. 因此，本项目推荐启动X11模式的wemeet（使用`wemeet-x11`启动）.
+
+- 此时，KDE下本项目仍然可以确保屏幕共享功能正常运行.
+- 而这主要得益于本项目新增加的x11 sanitizer，其会在屏幕共享时强制最小化wemeet的overlay（开始屏幕共享后2秒后生效），使得用户可以自由地点击包括xdg portal窗口在内的任何屏幕内容.
 
 3. 由于未知的原因，本项目无法链接到opencv来实现更复杂和高效的图像处理. 更具体而言，一旦将`libhook.so`链接到opencv并钩住`wemeetapp`，`wemeetapp`在启动时就会崩溃. 因此，本项目目前使用[stb](https://github.com/nothings/stb)库实现简单的图像缩放.
 

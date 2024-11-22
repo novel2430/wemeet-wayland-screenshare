@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <sstream>
 
 // Inline function to colorize text
 inline std::string color_text(const std::string& text, const std::string& color_code) {
@@ -19,4 +20,10 @@ inline std::string green_text(const std::string& text) {
 
 inline std::string yellow_text(const std::string& text) {
     return color_text(text, "33");
+}
+
+inline std::string int_to_hexstr(int value) {
+    std::stringstream ss;
+    ss << std::hex << value;
+    return ss.str();
 }

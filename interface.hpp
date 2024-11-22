@@ -49,7 +49,10 @@ struct Interface {
     uint32_t init_frame_width,
     SpaVideoFormat_e const& init_frame_format
   ):frame_buf_queue(init_frame_height, init_frame_width, init_frame_format),
-    pw_stop_flag(false), payload_pw_stop_confirm(false), payload_gio_stop_confirm(false)
+    pw_stop_flag(false),
+    payload_pw_stop_confirm(false),
+    payload_gio_stop_confirm(false),
+    x11_sanitizer_stop_flag(false)
   {}
   
   // atomic flag for the hook to stop the payload
@@ -63,6 +66,10 @@ struct Interface {
   // payload gio stop confirmation flag
   // must be set by payload main thread
   std::atomic<bool> payload_gio_stop_confirm;
+
+  // payload x11 redirect sanitizer stop flag
+  // managed by the payload, the hook does not need to care
+  std::atomic<bool> x11_sanitizer_stop_flag;
 
   // the framebuffer queue between the hook and the payload
   SimpleZOHSingleFrameBufferQueue frame_buf_queue;
