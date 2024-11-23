@@ -1,15 +1,15 @@
 
 
-# wemeet-wayland-screenshare -- 实现KDE Wayland下腾讯会议屏幕共享
+# wemeet-wayland-screenshare--实现KDE Wayland下腾讯会议屏幕共享(非虚拟相机)
 
-长期以来，由于腾讯会议开发者的不作为，腾讯会议一直无法实现在Wayland下的屏幕共享，给Linux用户造成了极大的不便。但现在，很自豪地，本项目首次实现了在KDE Wayland下使用腾讯会议的屏幕共享功能！
+长期以来，由于腾讯会议开发者的不作为，腾讯会议一直无法实现在Wayland下的屏幕共享，给Linux用户造成了极大的不便。但现在，很自豪地，本项目首次实现了在KDE Wayland下使用腾讯会议的屏幕共享功能！特别地，有别于其他方案，**本项目不使用虚拟相机**，而是特别实现了一个hook库，使得用户可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能.
 
 > btw, I use arch. More specifically, EndeavourOS KDE.
 
 
 ## ✨使用效果
 
-由于本人只使用EndeavourOS ArchLinux KDE Wayland，目前仅能给出在如上环境的使用方法与效果. 如果你使用的是其他环境，欢迎向本项目贡献代码，或者提出建议！
+由于本人只使用EndeavourOS ArchLinux KDE Wayland，目前仅能给出在如上环境的使用方法与效果. 如果你使用的是其他环境，欢迎向本项目反馈问题.
 
 ![Inst1](./resource/instruction-1.png "instruction-1")
 ![Inst2](./resource/instruction-2.png "instruction-2")
