@@ -41,63 +41,63 @@ public:
     }
   }
 
-  static CvMat* cvInitMatHeader(
+  static inline CvMat* cvInitMatHeader(
     CvMat* mat, int rows, int cols,
     int type, void* data = NULL,
     int step = CV_AUTOSTEP
   ){
     using FType = CvMat*(CvMat*, int, int, int, void*, int);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvInitMatHeader");
+    static auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvInitMatHeader");
     return func(mat, rows, cols, type, data, step);
   }
 
-  static CvMat* cvCreateMat(
+  static inline CvMat* cvCreateMat(
     int rows, int cols, int type
   ){
     using FType = CvMat*(int, int, int);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvCreateMat");
+    static auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvCreateMat");
     return func(rows, cols, type);
   }
   
-  static void cvReleaseMat(CvMat** mat){
+  static inline void cvReleaseMat(CvMat** mat){
     using FType = void(CvMat**);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvReleaseMat");
+    static auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvReleaseMat");
     return func(mat);
   }
 
-  static CvMat* cvGetSubRect(
+  static inline CvMat* cvGetSubRect(
     const CvArr* arr, CvMat* submat, CvRect rect
   ){
     using FType = CvMat*(const CvArr*, CvMat*, CvRect);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvGetSubRect");
+    static auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvGetSubRect");
     return func(arr, submat, rect);
   }
 
-  static void cvResize(
+  static inline void cvResize(
     const CvArr* src, CvArr* dst,
     int interpolation
   ){
     using FType = void(const CvArr*, CvArr*, int);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_imgproc_handle, "cvResize");
+    static auto func = (FType*)dlsym(singleton.libopencv_imgproc_handle, "cvResize");
     return func(src, dst, interpolation);
   }
 
-  static void cvSetZero(CvArr* arr){
+  static inline void cvSetZero(CvArr* arr){
     using FType = void(CvArr*);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvSetZero");
+    static auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvSetZero");
     return func(arr);
   }
 
-  static void cvCopy(const CvArr* src, CvArr* dst){
+  static inline void cvCopy(const CvArr* src, CvArr* dst){
     using FType = void(const CvArr*, CvArr*);
     auto& singleton = getSingleton();
-    auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvCopy");
+    static auto func = (FType*)dlsym(singleton.libopencv_core_handle, "cvCopy");
     return func(src, dst);
   }
 
