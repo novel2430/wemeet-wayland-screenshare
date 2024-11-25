@@ -119,9 +119,7 @@ yay -S wemeet-wayland-screenshare-git
    - 当前，直接去除mutex是不可行的. 这是因为，在录制时，framebuffer的参数（如pixel format, height and width）可能会发生变化.
 
 
-2. 当前，framebuffer中的图像被直接resize到wemeetapp所希望获取的图像（XImage）的尺寸. 这在现代笔记本上通常会造成aspect ratio的失真.
-   - 由于本项目无法链接opencv（具体见下文），实现该处理相对有些麻烦，因此在当前版本还没有实现
-   - 此外，实现该处理可能引入额外的性能和功耗代价
+2. opencv的链接问题已经根据lilydjwg的issue得到了解决. 现在，借助opencv，本项目可以在保证aspect ratio不变的情况下对图像进行缩放.
 
 
 3. 如前文所述，本项目当前劫持了`XDamageQueryExtension`函数，使得上层应用认为`XDamage`扩展并未被支持，从而强迫其不断使用`XShmGetImage`获取新的完整图像，但这显然会造成性能下降和功耗增加. 不过目前，本人尚未知道如何利用pipewire实现类似XDamage的效果，因此这个问题暂时无法解决.
@@ -146,3 +144,5 @@ yay -S wemeet-wayland-screenshare-git
 - 感谢AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)的维护者`sukanka`以及贡献者`Sam L. Yes`. 他们出色的工作基本解决了腾讯会议在Wayland下的正常运行问题，造福了众多Linux用户.
 
 - 感谢`nothings`开发的[stb](https://github.com/nothings/stb)库. 相较于opencv的臃肿和CImg富有想象力的memory layout, `stb`库提供了一个轻量且直接的解决方案，使得本项目得以实现.
+
+- 感谢`lilydjwg`提出的issue. 他的建议解决了本项目无法链接到opencv库的问题，改善了本项目的性能和效果.

@@ -33,8 +33,11 @@ public:
   }
 
   ~OpencvDLFCNSingleton(){
-    if(libopencv_core_handle != nullptr){
+    if (libopencv_core_handle != nullptr){
       dlclose(libopencv_core_handle);
+    }
+    if (libopencv_imgproc_handle != nullptr){
+      dlclose(libopencv_imgproc_handle);
     }
   }
 
@@ -99,8 +102,8 @@ public:
   }
 
 
-  void* libopencv_core_handle;
-  void* libopencv_imgproc_handle;
+  void* libopencv_core_handle{nullptr};
+  void* libopencv_imgproc_handle{nullptr};
 
 
 };

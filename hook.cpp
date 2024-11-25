@@ -144,8 +144,6 @@ void XShmGetImageHook(XImage& image){
   auto ximage_height = image.height;
   size_t ximage_bytes_per_line = image.bytes_per_line;
 
-  // auto& cv_dlfcn = OpencvDLFCNSingleton::getSingleton();
-
   CvMat ximage_cvmat;
   OpencvDLFCNSingleton::cvInitMatHeader(
     &ximage_cvmat, ximage_height, ximage_width,
