@@ -21,12 +21,11 @@ pkg_check_modules(LIBXDO REQUIRED libxdo)
 
 
 find_package(X11 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 
 function(add_compile_options_for TARGET_NAME)
 
-  # include current directory
-  target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
 
   target_link_libraries(${TARGET_NAME} PRIVATE ${GIO_LIBRARIES})
   target_include_directories(${TARGET_NAME} PRIVATE ${GIO_INCLUDE_DIRS})
@@ -44,6 +43,9 @@ function(add_compile_options_for TARGET_NAME)
 
   # include current directory
   target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+  # opencv
+  target_include_directories(${TARGET_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
 
   target_link_libraries(hook PRIVATE X11::X11)
 
