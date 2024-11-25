@@ -122,8 +122,6 @@ yay -S wemeet-wayland-screenshare-git
 2. opencv的链接问题已经根据lilydjwg的issue得到了解决. 现在，借助opencv，本项目可以在保证aspect ratio不变的情况下对图像进行缩放.
 
 
-3. 如前文所述，本项目当前劫持了`XDamageQueryExtension`函数，使得上层应用认为`XDamage`扩展并未被支持，从而强迫其不断使用`XShmGetImage`获取新的完整图像，但这显然会造成性能下降和功耗增加. 不过目前，本人尚未知道如何利用pipewire实现类似XDamage的效果，因此这个问题暂时无法解决.
-
 
 ### 兼容性和稳定性类 (High priority)
 
@@ -136,7 +134,6 @@ yay -S wemeet-wayland-screenshare-git
 - 此时，KDE下本项目仍然可以确保屏幕共享功能正常运行.
 - 而这主要得益于本项目新增加的x11 sanitizer，其会在屏幕共享时强制最小化wemeet的overlay（开始屏幕共享后2秒后生效），使得用户可以自由地点击包括xdg portal窗口在内的任何屏幕内容.
 
-3. 由于未知的原因，本项目无法链接到opencv来实现更复杂和高效的图像处理. 更具体而言，一旦将`libhook.so`链接到opencv并钩住`wemeetapp`，`wemeetapp`在启动时就会崩溃. 因此，本项目目前使用[stb](https://github.com/nothings/stb)库实现简单的图像缩放.
 
 
 ## 🙏致谢
