@@ -126,6 +126,7 @@ yay -S wemeet-wayland-screenshare-git
 1. 本项目目前只在以下环境下测试过：
    - **EndeavourOS ArchLinux KDE Wayland** + `pipewire-media-session` 正常工作
    - GNOME 43 + `wireplumber` 正常工作
+   - 根据[#4](https://github.com/xuwd1/wemeet-wayland-screenshare/pull/4)中反馈的结果，Manjaro GNOME47 (+ possibly `wireplumber`) 正常工作
 
 2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 特别地，在纯Wayland模式下（使用`wemeet`启动），wemeet本身存在一个恶性bug：尽管搭配本项目时，Linux用户可以将屏幕共享给其他用户，但当其他用户发起屏幕共享时，wemeet则会直接崩溃. 因此，本项目推荐启动X11模式的wemeet（使用`wemeet-x11`启动）.
 
@@ -141,3 +142,5 @@ yay -S wemeet-wayland-screenshare-git
 - 感谢`nothings`开发的[stb](https://github.com/nothings/stb)库. 相较于opencv的臃肿和CImg富有想象力的memory layout, `stb`库提供了一个轻量且直接的解决方案，使得本项目得以实现.
 
 - 感谢`lilydjwg`提出的issue. 他的建议解决了本项目无法链接到opencv库的问题，改善了本项目的性能和效果.
+
+- 感谢`DerryAlex`贡献的GNOME支持代码. 他出色的工作使得本项目可以在GNOME下正常工作，并额外解决了项目中存在的一些问题.
