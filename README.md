@@ -125,7 +125,7 @@ yay -S wemeet-wayland-screenshare-git
 
 1. 本项目目前只在以下环境下测试过：
    - **EndeavourOS ArchLinux KDE Wayland** + `pipewire-media-session` 正常工作
-   - **GNOME** 43 + `wireplumber` 几乎正常工作，x11 sanitizer 无法解决屏幕无法点击的问题，可通过键盘选取共享窗口，选取后可正常交互
+   - GNOME 43 + `wireplumber` 正常工作
 
 2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 特别地，在纯Wayland模式下（使用`wemeet`启动），wemeet本身存在一个恶性bug：尽管搭配本项目时，Linux用户可以将屏幕共享给其他用户，但当其他用户发起屏幕共享时，wemeet则会直接崩溃. 因此，本项目推荐启动X11模式的wemeet（使用`wemeet-x11`启动）.
 
