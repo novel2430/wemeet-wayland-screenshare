@@ -4,9 +4,6 @@
 #include <vector>
 #include <algorithm>
 
-extern "C" {
-#include <xdo.h>
-}
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
@@ -114,13 +111,7 @@ std::vector<CandidateWindowInfo> x11_sanitizer_get_targets(
   So we wait for $STEADY_WAIT_TIME seconds after the first override_redirect window has been found, and
   pick the right window based on the window size.
 
-  2. After the right window is picked, we do the following operations:
-    - set override_redirect to false
-    - unmap the window - this would temporarily hide the window
-    - map the window - this wakes up window manager(like KWin) to manage it
-    - minimize the window * 3 - since 重要的事情要说三遍
-
-  well actually I found that it's sufficient to just minimize the window. so screw it, we just minimize it.
+  2. Just hide the window.
 */
 
 void x11_sanitizer_main()
@@ -138,7 +129,6 @@ void x11_sanitizer_main()
   auto* interface_handle = interface_singleton.interface_handle.load();
   Display* display = XOpenDisplay(NULL);
   XWindow_t root_window = DefaultRootWindow(display);
-  xdo_t* xdo = xdo_new(NULL);
 
   // 1.5 seconds steady wait time seems to be "generally safe".
   // A more aggressive value like 1 seconds seems to be too risky.
@@ -152,19 +142,28 @@ void x11_sanitizer_main()
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    // the below code is commented so that
-    // we KEEP minimizing this window until the stop signal is received
-    // we suppress it as hard as we can to express our anger
-    // if (picked_window_id!=0){
-    //   continue;
-    // }
-
     auto targets = x11_sanitizer_get_targets(display, root_window);
     auto now = std::chrono::high_resolution_clock::now();
     if (targets.size() != 0 && target_first_occurred == false) {
       target_first_occurred = true;
       steady_start_time = now;
     }
+    
+    // This can be much faster than STEADY_WAIT_TIME, say 200ms
+    int screen = DefaultScreen(display);
+    int width = XDisplayWidth(display, screen);
+    int height = XDisplayHeight(display, screen);
+    for (auto target: targets) {
+      // full screen size window is detected
+      if (target.window_width == width && target.window_height == height) {
+        auto duration = std::chrono::duration_cast<std::chrono::duration<long, std::milli>>(now - steady_start_time);
+        picked_window_id = target.window_id;
+        fprintf(stderr, "%s picked window 0x%lx after %ld ms.\n", green_text("[payload x11 sanitizer]").c_str(), picked_window_id, duration.count());
+        now = now + STEADY_WAIT_TIME;
+        break;
+      }
+    }
+    
     if (target_first_occurred && (now - steady_start_time) < STEADY_WAIT_TIME) {
       // wait for steady state
       continue;
@@ -185,63 +184,17 @@ void x11_sanitizer_main()
       }
       
       if (!target_managed) {
-
-        auto f_suppress_gnome = [&](){
-          // get it managed by window manager
-          // it is all you need on GNOME
-          xdo_set_window_override_redirect(
-            xdo, picked_window_id, 0
-          );
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
-          xdo_unmap_window(
-            xdo, picked_window_id
-          );
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
-          // do it only once to get rid of annoying 'wemeetapp is ready' notifications
-          xdo_map_window(
-            xdo, picked_window_id
-          );
-        };
-
-        auto f_suppress_kde = [&](){
-          // on KDE its well sufficient to just minimize it for three times
-          constexpr int IMPORTANT_THINGS_WORTH_THREE_REITERATIONS = 3;
-          for (int i = 0; i < IMPORTANT_THINGS_WORTH_THREE_REITERATIONS; i++) {
-            xdo_minimize_window(
-              xdo, picked_window_id
-            );
-          }
-        };
-
         DEType de_type = get_current_de_type();
         switch (de_type) {
           case DEType::GNOME:
-            fprintf(stderr, "%s", green_text("[payload x11 sanitizer] GNOME DE detected. \n").c_str());
-            f_suppress_gnome();
-            break;
           case DEType::KDE:
-            fprintf(stderr, "%s", green_text("[payload x11 sanitizer] KDE DE detected. \n").c_str());
-            f_suppress_kde();
-            break;
           case DEType::Unknown:
-            fprintf(stderr, "%s", red_text("[payload x11 sanitizer] unknown DE type. Falling back to GNOME strat. \n").c_str());
-            f_suppress_gnome();
+            XUnmapWindow(display, picked_window_id);
             break;
         }
         target_managed = true;
-        
+        break;
       }
-      
-      // This should be commented if test for KDE turns out good.
-      // It hides the full-screen window indicating sharing area
-      // which does not matter but gives inconsistent user experience.
-      // If this window gets maximized, it will shadow gnome panel.
-      // constexpr int IMPORTANT_THINGS_WORTH_THREE_REITERATIONS = 3;
-      // for (int i = 0; i < IMPORTANT_THINGS_WORTH_THREE_REITERATIONS; i++) {
-      //   xdo_minimize_window(
-      //     xdo, picked_window_id
-      //   );
-      // }
     }  
   }
   XCloseDisplay(display);
