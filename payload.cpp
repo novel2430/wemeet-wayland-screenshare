@@ -17,12 +17,32 @@ extern "C" {
 
 using XWindow_t = Window;
 
+enum class DEType {
+  GNOME,
+  KDE,
+  Unknown
+};
+
 struct CandidateWindowInfo{
   XWindow_t window_id;
   std::string window_name;
   int window_width;
   int window_height;
 };
+
+DEType get_current_de_type(){
+  // get the DE type using envvar "XDG_SESSION_DESKTOP"
+  char* xdg_session_desktop = std::getenv("XDG_SESSION_DESKTOP");
+  if (xdg_session_desktop == nullptr) {
+    return DEType::Unknown;
+  }
+  if (std::string(xdg_session_desktop) == "KDE") {
+    return DEType::KDE;
+  } else if (std::string(xdg_session_desktop) == "gnome") {
+    return DEType::GNOME;
+  }
+  return DEType::Unknown;
+}
 
 std::vector<CandidateWindowInfo> x11_sanitizer_get_targets(
   Display* display,
@@ -165,34 +185,63 @@ void x11_sanitizer_main()
       }
       
       if (!target_managed) {
-        // get it managed by window manager
-        // it is all you need on GNOME
-        xdo_set_window_override_redirect(
-          xdo, picked_window_id, 0
-        );
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        xdo_unmap_window(
-          xdo, picked_window_id
-        );
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        // do it only once to get rid of annoying 'wemeetapp is ready' notifications
-        xdo_map_window(
-          xdo, picked_window_id
-        );
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        auto f_suppress_gnome = [&](){
+          // get it managed by window manager
+          // it is all you need on GNOME
+          xdo_set_window_override_redirect(
+            xdo, picked_window_id, 0
+          );
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          xdo_unmap_window(
+            xdo, picked_window_id
+          );
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          // do it only once to get rid of annoying 'wemeetapp is ready' notifications
+          xdo_map_window(
+            xdo, picked_window_id
+          );
+        };
+
+        auto f_suppress_kde = [&](){
+          // on KDE its well sufficient to just minimize it for three times
+          constexpr int IMPORTANT_THINGS_WORTH_THREE_REITERATIONS = 3;
+          for (int i = 0; i < IMPORTANT_THINGS_WORTH_THREE_REITERATIONS; i++) {
+            xdo_minimize_window(
+              xdo, picked_window_id
+            );
+          }
+        };
+
+        DEType de_type = get_current_de_type();
+        switch (de_type) {
+          case DEType::GNOME:
+            fprintf(stderr, "%s", green_text("[payload x11 sanitizer] GNOME DE detected. \n").c_str());
+            f_suppress_gnome();
+            break;
+          case DEType::KDE:
+            fprintf(stderr, "%s", green_text("[payload x11 sanitizer] KDE DE detected. \n").c_str());
+            f_suppress_kde();
+            break;
+          case DEType::Unknown:
+            fprintf(stderr, "%s", red_text("[payload x11 sanitizer] unknown DE type. Falling back to GNOME strat. \n").c_str());
+            f_suppress_gnome();
+            break;
+        }
         target_managed = true;
+        
       }
       
       // This should be commented if test for KDE turns out good.
       // It hides the full-screen window indicating sharing area
       // which does not matter but gives inconsistent user experience.
       // If this window gets maximized, it will shadow gnome panel.
-      constexpr int IMPORTANT_THINGS_WORTH_THREE_REITERATIONS = 3;
-      for (int i = 0; i < IMPORTANT_THINGS_WORTH_THREE_REITERATIONS; i++) {
-        xdo_minimize_window(
-          xdo, picked_window_id
-        );
-      }
+      // constexpr int IMPORTANT_THINGS_WORTH_THREE_REITERATIONS = 3;
+      // for (int i = 0; i < IMPORTANT_THINGS_WORTH_THREE_REITERATIONS; i++) {
+      //   xdo_minimize_window(
+      //     xdo, picked_window_id
+      //   );
+      // }
     }  
   }
   XCloseDisplay(display);

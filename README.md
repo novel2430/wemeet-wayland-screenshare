@@ -1,15 +1,14 @@
 
 
-# wemeet-wayland-screenshare--实现KDE Wayland下腾讯会议屏幕共享(非虚拟相机)
+# wemeet-wayland-screenshare--实现KDE/GNOME Wayland下腾讯会议屏幕共享(非虚拟相机)
 
-长期以来，由于腾讯会议开发者的不作为，腾讯会议一直无法实现在Wayland下的屏幕共享，给Linux用户造成了极大的不便。但现在，很自豪地，本项目首次实现了在KDE Wayland下使用腾讯会议的屏幕共享功能！特别地，有别于其他方案，**本项目不使用虚拟相机**，而是特别实现了一个hook库，使得用户可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能.
+长期以来，由于腾讯会议开发者的不作为，腾讯会议一直无法实现在Wayland下的屏幕共享，给Linux用户造成了极大的不便。但现在，很自豪地，本项目首次实现了在KDE/GNOME Wayland下使用腾讯会议的屏幕共享功能！特别地，有别于其他方案，**本项目不使用虚拟相机**，而是特别实现了一个hook库，使得用户可以在KDE/GNOME Wayland下正常使用腾讯会议的屏幕共享功能.
 
-> btw, I use arch. More specifically, EndeavourOS KDE.
 
 
 ## ✨使用效果
 
-由于本人只使用EndeavourOS ArchLinux KDE Wayland，目前仅能给出在如上环境的使用方法与效果. 如果你使用的是其他环境，欢迎向本项目反馈问题.
+在几位贡献者的努力下，本项目现在已经可以同时支持KDE Wayland和GNOME Wayland下的腾讯会议屏幕共享功能. 下面的图片展示了使用步骤和效果：
 
 ![Inst1](./resource/instruction-1.png "instruction-1")
 ![Inst2](./resource/instruction-2.png "instruction-2")
@@ -18,7 +17,7 @@
 
 ## ⚒️编译、安装和使用
 
-由于本人只使用EndeavourOS ArchLinux KDE Wayland，目前仅能给出在如上环境的编译与安装方法. 如果你使用的是其他环境，欢迎向本项目贡献代码，或者提出建议！
+在几位贡献者的努力下，本项目现在已经可以同时支持KDE Wayland和GNOME Wayland下的腾讯会议屏幕共享功能. 特别地，下面给出在ArchLinux上的编译和安装方法. 如果你使用的是其他distro，还请自行adapt，但总体上应该相当容易.
 
 ### 手动测试/安装
 
@@ -32,8 +31,11 @@ yay -S wemeet-bin
 2. 安装依赖
 
 ```bash
+sudo pacman -S wireplumber
 sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde xwaylandvideobridge xdotool opencv
 ```
+
+- 注意：本项目在之前的版本中必须依赖于`pipewire-media-session`. 而现在经过测试已经确定`wireplumber`下可用. 如果系统中已经安装`pipewire-media-session`，pacman会在安装`wireplumber`时提示替换，你基本可以毫无顾虑地同意替换. 关于此问题具体的implication，还请自行查阅相关资料.
 
 3. 编译本项目:
 
@@ -72,9 +74,9 @@ sudo ninja install
 
 
 
-### 使用AUR包 `wemeet-wayland-screenshare-git`
+### Arch Only: 使用AUR包 `wemeet-wayland-screenshare-git`
 
-更方便的安装方法是直接安装AUR包`wemeet-wayland-screenshare-git`:
+如果你使用的是ArchLinux，更方便的安装方法是直接安装AUR包`wemeet-wayland-screenshare-git`:
 
 ```bash
 # Use whatever AUR helper you like, or even build locally
@@ -124,9 +126,10 @@ yay -S wemeet-wayland-screenshare-git
 
 
 1. 本项目目前只在以下环境下测试过：
-   - **EndeavourOS ArchLinux KDE Wayland** + `pipewire-media-session` 正常工作
-   - GNOME 43 + `wireplumber` 正常工作
-   - 根据[#4](https://github.com/xuwd1/wemeet-wayland-screenshare/pull/4)中反馈的结果，Manjaro GNOME47 (+ possibly `wireplumber`) 正常工作
+   - **EndeavourOS ArchLinux KDE Wayland** + `wireplumber/pipewire-media-session` 正常工作
+   - **EndeavourOS ArchLinux GNOME 47 Wayland** + `wireplumber` 正常工作
+   - 根据贡献者`DerryAlex`的测试结果，**GNOME 43** + `wireplumber` (Unknown distro) 正常工作
+   - 根据[#4](https://github.com/xuwd1/wemeet-wayland-screenshare/pull/4)中反馈的结果，**Manjaro GNOME 47** (+ possibly `wireplumber`) 正常工作
 
 2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 特别地，在纯Wayland模式下（使用`wemeet`启动），wemeet本身存在一个恶性bug：尽管搭配本项目时，Linux用户可以将屏幕共享给其他用户，但当其他用户发起屏幕共享时，wemeet则会直接崩溃. 因此，本项目推荐启动X11模式的wemeet（使用`wemeet-x11`启动）.
 

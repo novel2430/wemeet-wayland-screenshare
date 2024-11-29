@@ -108,7 +108,7 @@ struct XdpScreencastPortal {
     unsigned node_id;
     while (g_variant_iter_next(iter, "(ua{sv})", &node_id, NULL)) {
       this_ptr->pipewire_node_ids.push_back(node_id);
-      fprintf(stderr, "[hook] stream %d\n", node_id);
+      fprintf(stderr, "%s\n", green_text("[hook] stream node_id: " + std::to_string(node_id)).c_str());
     }
     g_variant_iter_free(iter);
   }
