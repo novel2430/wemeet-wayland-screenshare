@@ -13,6 +13,7 @@
 ![Inst1](./resource/instruction-1.png "instruction-1")
 ![Inst2](./resource/instruction-2.png "instruction-2")
 ![Inst3](./resource/instruction-3-new.png "instruction-3")
+![Support](./resource/supported_DEs.png "support")
 
 
 ## ⚒️编译、安装和使用
