@@ -138,6 +138,10 @@ void x11_sanitizer_main()
   bool target_managed = false;
   XWindow_t picked_window_id = 0;
 
+  int screen = DefaultScreen(display);
+  int screen_width = XDisplayWidth(display, screen);
+  int screen_height = XDisplayHeight(display, screen);
+
   while(interface_handle->x11_sanitizer_stop_flag.load(std::memory_order_seq_cst) == false){
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -150,12 +154,9 @@ void x11_sanitizer_main()
     }
     
     // This can be much faster than STEADY_WAIT_TIME, say 200ms
-    int screen = DefaultScreen(display);
-    int width = XDisplayWidth(display, screen);
-    int height = XDisplayHeight(display, screen);
     for (auto target: targets) {
       // full screen size window is detected
-      if (target.window_width == width && target.window_height == height) {
+      if (target.window_width == screen_width && target.window_height == screen_height) {
         auto duration = std::chrono::duration_cast<std::chrono::duration<long, std::milli>>(now - steady_start_time);
         picked_window_id = target.window_id;
         fprintf(stderr, "%s picked window 0x%lx after %ld ms.\n", green_text("[payload x11 sanitizer]").c_str(), picked_window_id, duration.count());

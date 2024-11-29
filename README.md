@@ -33,7 +33,7 @@ yay -S wemeet-bin
 
 ```bash
 sudo pacman -S wireplumber
-sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde xwaylandvideobridge xdotool opencv
+sudo pacman -S libportal xdg-desktop-portal xdg-desktop-portal-kde xwaylandvideobridge opencv
 ```
 
 - 注意：本项目在之前的版本中必须依赖于`pipewire-media-session`. 而现在经过测试已经确定`wireplumber`下可用. 如果系统中已经安装`pipewire-media-session`，pacman会在安装`wireplumber`时提示替换，你基本可以毫无顾虑地同意替换. 关于此问题具体的implication，还请自行查阅相关资料.
@@ -147,4 +147,4 @@ yay -S wemeet-wayland-screenshare-git
 
 - 感谢`lilydjwg`提出的issue. 他的建议解决了本项目无法链接到opencv库的问题，改善了本项目的性能和效果.
 
-- 感谢`DerryAlex`贡献的GNOME支持代码. 他出色的工作使得本项目可以在GNOME下正常工作，并额外解决了项目中存在的一些问题.
+- 感谢`DerryAlex`贡献的GNOME支持代码. 他出色的工作使得本项目可以在GNOME下正常工作，改进了x11 sanitizer的效果，并额外解决了项目中存在的一些问题.
