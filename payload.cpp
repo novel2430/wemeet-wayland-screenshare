@@ -6,6 +6,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/Xrandr.h>
 
 #include "payload.hpp"
 #include "interface.hpp"
@@ -97,6 +98,29 @@ std::vector<CandidateWindowInfo> x11_sanitizer_get_targets(
   return targets;
 }
 
+
+std::vector<std::tuple<int, int>> get_screen_sizes(
+  Display* display,
+  int screen
+){
+  std::vector<std::tuple<int, int>> screen_sizes;
+  XRRScreenResources *screen_resources = XRRGetScreenResources(display, RootWindow(display, screen));
+  for (int i = 0; i < screen_resources->noutput; i++) {
+    RROutput output = screen_resources->outputs[i];
+    XRROutputInfo *output_info = XRRGetOutputInfo(display, screen_resources, output);
+    if (output_info->connection == RR_Connected) {
+      XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(display, screen_resources, output_info->crtc);
+      if (crtc_info) {
+        screen_sizes.push_back(std::make_tuple(crtc_info->width, crtc_info->height));
+        XRRFreeCrtcInfo(crtc_info);
+      }
+    }
+    XRRFreeOutputInfo(output_info);
+  }
+  XRRFreeScreenResources(screen_resources);
+  return screen_sizes;
+}
+
 /*
   Below is a *VERY CRAZY* code that get rid of the stupid asshole wemeet screenshare overlay window, which
   prevents the user from clicking anything on the screen.
@@ -107,11 +131,19 @@ std::vector<CandidateWindowInfo> x11_sanitizer_get_targets(
   create and destroy multiple windows with override_redirect set to true after you started screenshare.
   If the wrong window is picked, the whole wemeet app GUI would enter a very weird state and will eventually
   crash, LMFAO. However I observed that it would eventually enter a "steady state" where the right window
-  would be the one with the largest size. 
-  So we wait for $STEADY_WAIT_TIME seconds after the first override_redirect window has been found, and
-  pick the right window based on the window size.
+  would be the one with the largest size. DerryAlex noticed this size should also be the "fullscreen size",
+  though with some caveats. He also digged out that the unified strategy XUnmapWindow works well.
+  
+  So the eventual logic is, well, a little bit over engineered. In every 100ms, we:
+    (1) first locate some candidate windows that has "wemeet" in its name and has override_redirect set to true.
+    (2) then see if there is any candidate window whose size is "roughly the same" as the screen size.
+    (3) if there is one, we just select it and then exit.
+    (4) if there isn't one, the loop continues
+  This loop will continue until $STEADY_WAIT_TIME has passed. If things turn out like this we use the fallback
+  strategy that picks the window with the largest size.
 
-  2. Just hide the window.
+  2. Just hide the window, using the unified strategy "XUnmapWindow" regardless of the DE type.
+    However we keep the DE detection logic here in case we need to use different strategies for different DEs...
 */
 
 void x11_sanitizer_main()
@@ -128,19 +160,17 @@ void x11_sanitizer_main()
   auto& interface_singleton = InterfaceSingleton::getSingleton();
   auto* interface_handle = interface_singleton.interface_handle.load();
   Display* display = XOpenDisplay(NULL);
+  int screen = DefaultScreen(display);
   XWindow_t root_window = DefaultRootWindow(display);
 
-  // 1.5 seconds steady wait time seems to be "generally safe".
-  // A more aggressive value like 1 seconds seems to be too risky.
+  std::vector<std::tuple<int, int>> screen_sizes = get_screen_sizes(display, screen);
+    
+  // 2 seconds steady wait time seems to be "generally safe".
   std::chrono::milliseconds STEADY_WAIT_TIME(2000);
   std::chrono::time_point<std::chrono::high_resolution_clock> steady_start_time;
   bool target_first_occurred = false;
   bool target_managed = false;
   XWindow_t picked_window_id = 0;
-
-  int screen = DefaultScreen(display);
-  int screen_width = XDisplayWidth(display, screen);
-  int screen_height = XDisplayHeight(display, screen);
 
   while(interface_handle->x11_sanitizer_stop_flag.load(std::memory_order_seq_cst) == false){
 
@@ -155,12 +185,22 @@ void x11_sanitizer_main()
     
     // This can be much faster than STEADY_WAIT_TIME, say 200ms
     for (auto target: targets) {
-      // full screen size window is detected
-      if (target.window_width == screen_width && target.window_height == screen_height) {
+
+      auto f_fuzzy_matched = [&](){
+        for (auto [width, height]: screen_sizes) {
+          bool matched = std::abs(target.window_width - width) < 5 && std::abs(target.window_height - height) < 5;
+          if (matched) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      if (f_fuzzy_matched()) {
         auto duration = std::chrono::duration_cast<std::chrono::duration<long, std::milli>>(now - steady_start_time);
         picked_window_id = target.window_id;
         fprintf(stderr, "%s picked window 0x%lx after %ld ms.\n", green_text("[payload x11 sanitizer]").c_str(), picked_window_id, duration.count());
-        now = now + STEADY_WAIT_TIME;
+        now = now + STEADY_WAIT_TIME; // this cheats the following logic to skip the steady wait
         break;
       }
     }
@@ -169,6 +209,7 @@ void x11_sanitizer_main()
       // wait for steady state
       continue;
     }
+
     if (target_first_occurred && (now - steady_start_time) >= STEADY_WAIT_TIME) {
       
       if (!picked_window_id) {
@@ -190,6 +231,7 @@ void x11_sanitizer_main()
           case DEType::GNOME:
           case DEType::KDE:
           case DEType::Unknown:
+            // this unified strategy works well
             XUnmapWindow(display, picked_window_id);
             break;
         }
