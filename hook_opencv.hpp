@@ -4,9 +4,8 @@
 
 #include <stdexcept>
 #include <dlfcn.h>
-#include <opencv4/opencv2/core/types_c.h>
-#include <opencv4/opencv2/opencv.hpp>
-#include <opencv4/opencv2/core/core_c.h>
+
+#include <opencv2/core/core_c.h>
 #include <opencv2/imgproc/imgproc_c.h>
 
 struct OpencvDLFCNSingleton{
