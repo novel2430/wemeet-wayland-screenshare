@@ -16,7 +16,14 @@ pkg_check_modules(PIPEWIRE REQUIRED libpipewire-0.3)
 
 
 find_package(X11 REQUIRED)
-find_package(OpenCV REQUIRED)
+
+find_package(OpenCV QUIET)
+if(NOT OpenCV_FOUND)
+  find_library(NAMES opencv_core REQUIRED)
+  find_library(NAMES opencv_imgproc REQUIRED)
+  find_path(OpenCV_INCLUDE_DIRS NAMES opencv2/core/core_c.h PATH_SUFFIXES opencv4 REQUIRED)
+  message(STATUS "Detect OpenCV_INCLUDE_DIRS = ${OpenCV_INCLUDE_DIRS}")
+endif(NOT OpenCV_FOUND)
 
 
 function(add_compile_options_for TARGET_NAME)
