@@ -62,7 +62,7 @@ ninja
 LD_PRELOAD=$(readlink -f ./libhook.so) wemeet-x11
 ```
 
-按照上面的使用方法，你应该可以在KDE Wayland下正常使用腾讯会议的屏幕共享功能了！
+按照上面的使用方法，你应该可以在KDE/GNOME Wayland下正常使用腾讯会议的屏幕共享功能了！
 - 注意：推荐使用`wemeet-x11`. 具体原因请见后文[兼容性和稳定性类](#兼容性和稳定性类-high-priority)部分.
 
 
@@ -134,7 +134,7 @@ yay -S wemeet-wayland-screenshare-git
 
 2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 特别地，在纯Wayland模式下（使用`wemeet`启动），wemeet本身存在一个恶性bug：尽管搭配本项目时，Linux用户可以将屏幕共享给其他用户，但当其他用户发起屏幕共享时，wemeet则会直接崩溃. 因此，本项目推荐启动X11模式的wemeet（使用`wemeet-x11`启动）.
 
-- 此时，KDE下本项目仍然可以确保屏幕共享功能正常运行.
+- 此时，KDE和GNOME下本项目仍然可以确保屏幕共享功能正常运行.
 - 而这主要得益于本项目新增加的x11 sanitizer，其会在屏幕共享时强制最小化wemeet的overlay（开始屏幕共享后2秒后生效），使得用户可以自由地点击包括xdg portal窗口在内的任何屏幕内容.
 
 
