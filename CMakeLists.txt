@@ -60,6 +60,7 @@ function(add_compile_options_for TARGET_NAME)
   target_include_directories(${TARGET_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
 
   target_link_libraries(${TARGET_NAME} PRIVATE X11::X11)
+  target_link_libraries(${TARGET_NAME} PRIVATE X11::Xrandr)
 
 endfunction()
 
