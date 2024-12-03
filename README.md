@@ -131,6 +131,7 @@ yay -S wemeet-wayland-screenshare-git
    - **EndeavourOS ArchLinux GNOME 47 Wayland** + `wireplumber` 正常工作
    - 根据贡献者`DerryAlex`的测试结果，**GNOME 43** + `wireplumber` (Unknown distro) 正常工作
    - 根据[#4](https://github.com/xuwd1/wemeet-wayland-screenshare/pull/4)中反馈的结果，**Manjaro GNOME 47** (+ possibly `wireplumber`) 正常工作
+   - 根据`falser`的反馈，**ArchLinux Hyprland** + `wireplumber`正常工作
 
 2. 目前，本项目只基于AUR package [wemeet-bin](https://aur.archlinux.org/packages/wemeet-bin)测试过. 特别地，在纯Wayland模式下（使用`wemeet`启动），wemeet本身存在一个恶性bug：尽管搭配本项目时，Linux用户可以将屏幕共享给其他用户，但当其他用户发起屏幕共享时，wemeet则会直接崩溃. 因此，本项目推荐启动X11模式的wemeet（使用`wemeet-x11`启动）.
 
