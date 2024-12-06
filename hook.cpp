@@ -155,12 +155,6 @@ void XShmGetImageHook(XImage& image){
   auto ximage_height = image.height;
   size_t ximage_bytes_per_line = image.bytes_per_line;
 
-  if(ximage_spa_format == SpaVideoFormat_e::BGRA) {
-    printf("TRANSLATE1, ");
-    bgrx_to_rgbx(reinterpret_cast<uint8_t*>(image.data), ximage_height * ximage_bytes_per_line);
-    //ximage_spa_format = SpaVideoFormat_e::RGBx;
-  }
-
   CvMat ximage_cvmat;
   OpencvDLFCNSingleton::cvInitMatHeader(
     &ximage_cvmat, ximage_height, ximage_width,
