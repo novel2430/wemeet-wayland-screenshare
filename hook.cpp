@@ -155,11 +155,10 @@ void XShmGetImageHook(XImage& image){
   auto ximage_height = image.height;
   size_t ximage_bytes_per_line = image.bytes_per_line;
 
-  printf("%d", ximage_spa_format); 
   if(ximage_spa_format == SpaVideoFormat_e::BGRA) {
-    printf("TRANSLATE");
+    printf("TRANSLATE1, ");
     bgrx_to_rgbx(reinterpret_cast<uint8_t*>(image.data), ximage_height * ximage_bytes_per_line);
-    ximage_spa_format = SpaVideoFormat_e::RGBx;
+    //ximage_spa_format = SpaVideoFormat_e::RGBx;
   }
 
   CvMat ximage_cvmat;
@@ -221,6 +220,11 @@ void XShmGetImageHook(XImage& image){
   // both X and pipewire would be BGR(A/X)
   // But maybe there will be some rare cases where
   // the pixel layout is different
+
+  if (ximage_spa_format == SpaVideoFormat_e::BGRA) {
+    printf("TRANSLATE2, ");
+    bgrx_to_rgbx(reinterpret_cast<uint8_t*>(framebuffer.data.get()), framebuffer_height * framebuffer_row_byte_stride);
+  }
 
   framebuf_queue.release_read();
 
