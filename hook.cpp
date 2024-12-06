@@ -137,12 +137,26 @@ std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> get_resize_param(
 }
 
 
+void bgrx_to_rgbx(uint8_t* data, size_t length) {
+    for (size_t i = 0; i < length; i += 4) {
+        uint8_t tmp = data[i];       // 暫存 B 通道
+        data[i] = data[i + 2];       // R 通道放到 B 的位置
+        data[i + 2] = tmp;           // B 通道放到 R 的位置
+    }
+}
+
+
 void XShmGetImageHook(XImage& image){
   
   auto ximage_spa_format = ximage_to_spa(image);
   auto ximage_width = image.width;
   auto ximage_height = image.height;
   size_t ximage_bytes_per_line = image.bytes_per_line;
+
+  if(ximage_spa_format == SpaVideoFormat_e::BGRA) {
+    bgrx_to_rgbx(reinterpret_cast<uint8_t*>(image.data), ximage_height * ximage_bytes_per_line);
+    ximage_spa_format = SpaVideoFormat_e::RGBx;
+  }
 
   CvMat ximage_cvmat;
   OpencvDLFCNSingleton::cvInitMatHeader(
