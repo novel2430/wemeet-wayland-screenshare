@@ -1,3 +1,4 @@
 .cache/
 build/
 flake.nix
+flake.lock
