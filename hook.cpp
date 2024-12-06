@@ -1,4 +1,5 @@
 
+#include <cstdio>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -9,6 +10,7 @@
 #include <arpa/inet.h>
 
 // got to include this before X11 headers
+#include "format.hpp"
 #include "hook_opencv.hpp"
 
 #include <X11/Xlib.h>
@@ -153,7 +155,9 @@ void XShmGetImageHook(XImage& image){
   auto ximage_height = image.height;
   size_t ximage_bytes_per_line = image.bytes_per_line;
 
+  printf("%d", ximage_spa_format); 
   if(ximage_spa_format == SpaVideoFormat_e::BGRA) {
+    printf("TRANSLATE");
     bgrx_to_rgbx(reinterpret_cast<uint8_t*>(image.data), ximage_height * ximage_bytes_per_line);
     ximage_spa_format = SpaVideoFormat_e::RGBx;
   }
